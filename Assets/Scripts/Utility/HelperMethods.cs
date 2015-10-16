@@ -1,9 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public static class HelperMethods
 {
+    public static Bounds BoundsFromPoints(IEnumerable<Vector3> points)
+    {
+        Bounds bounds = new Bounds();
+        bounds.center = points.First();
+        bounds.size = Vector3.zero;
+        Debug.Log("Center: " + bounds.center);
+        foreach(var point in points.Skip(1))
+        {
+            Debug.Log("Encapsulate " + point);
+            bounds.Encapsulate(point);
+        }
+        Debug.Log("Inner bounds: " + bounds);
+        return bounds;
+    }
+
     public static Vector3[] Corners(this Bounds bounds)
     {
         return new Vector3[]
