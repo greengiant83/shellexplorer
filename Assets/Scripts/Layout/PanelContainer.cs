@@ -19,7 +19,8 @@ public class PanelContainer : MonoBehaviour
 	
 	void Update () 
     {
-        UpdateLayout();
+        //TODO: Need to figure out a way to decide when to update. Updating every frame even if nothing has changed is stupid
+        //UpdateLayout();
 	}
 
     void UpdateLayout()
@@ -28,7 +29,7 @@ public class PanelContainer : MonoBehaviour
         if (backgroundTransform != null) background = backgroundTransform.gameObject;
 
         var childObjects = gameObject.Descendants().Where(i => i != background);
-        var childCorners = childObjects.SelectMany(i => getGameObjectCorners(i)).ToArray();
+        var childCorners = childObjects.SelectMany(i => i.GetRelativeCorners(this.transform));
         var bounds = HelperMethods.BoundsFromPoints(childCorners);
 
         //bounds coordinates are relative to this.transform
@@ -44,14 +45,5 @@ public class PanelContainer : MonoBehaviour
         background.transform.localPosition = bounds.center + new Vector3(0, 0, bounds.extents.z + Thickness/2 + StandOff);
         background.transform.localScale = new Vector3(bounds.size.x + Padding * 2, bounds.size.y + Padding * 2, Thickness);
         
-    }
-
-    IEnumerable<Vector3> getGameObjectCorners(GameObject item)
-    {
-        var meshFilter = item.GetComponent<MeshFilter>();
-        if (meshFilter != null && meshFilter.sharedMesh != null)
-            return meshFilter.sharedMesh.bounds.Corners().Select(i => transform.InverseTransformPoint(item.transform.TransformPoint(i)));
-        else
-            return new Vector3[0];
     }
 }

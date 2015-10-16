@@ -5,18 +5,42 @@ using System.Linq;
 
 public static class HelperMethods
 {
+    public static IEnumerable<Vector3> GetRelativeCorners(this GameObject item, Transform relativeTo)
+    {
+        var meshFilter = item.GetComponent<MeshFilter>();
+        if (meshFilter != null && meshFilter.sharedMesh != null)
+            return meshFilter.sharedMesh.bounds.Corners().Select(i => relativeTo.InverseTransformPoint(item.transform.TransformPoint(i)));
+        else
+            return new Vector3[0];
+    }
+
+    public static Bounds GetRelativeBounds(this GameObject item, Transform relativeTo, bool includeDescendants)
+    {
+        if (includeDescendants)
+        {
+            var childObjects = item.Descendants().Union(new GameObject[] { item });
+            var childCorners = childObjects.SelectMany(i => i.GetRelativeCorners(relativeTo));
+            var bounds = HelperMethods.BoundsFromPoints(childCorners);
+            return bounds;
+        }
+        else
+        {
+            return BoundsFromPoints(item.GetRelativeCorners(relativeTo));
+        }
+    }
+
     public static Bounds BoundsFromPoints(IEnumerable<Vector3> points)
     {
         Bounds bounds = new Bounds();
-        bounds.center = points.First();
-        bounds.size = Vector3.zero;
-        Debug.Log("Center: " + bounds.center);
-        foreach(var point in points.Skip(1))
+        if (points.Any())
         {
-            Debug.Log("Encapsulate " + point);
-            bounds.Encapsulate(point);
+            bounds.center = points.First();
+            bounds.size = Vector3.zero;
+            foreach (var point in points.Skip(1))
+            {
+                bounds.Encapsulate(point);
+            }
         }
-        Debug.Log("Inner bounds: " + bounds);
         return bounds;
     }
 
