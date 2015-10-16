@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class PanelContainer : MonoBehaviour 
@@ -26,33 +27,9 @@ public class PanelContainer : MonoBehaviour
         var backgroundTransform = transform.FindChild("Background Box");
         if (backgroundTransform != null) background = backgroundTransform.gameObject;
 
-        Bounds bounds = new Bounds();
-        bool isFirst = true;
-        foreach(var item in gameObject.Descendants())
-        {
-            if (item == background) continue;
-
-            var meshFilter = item.GetComponent<MeshFilter>();
-            if(meshFilter != null)
-            {
-                var itemBounds = meshFilter.sharedMesh.bounds;
-                var corners = itemBounds.Corners().Select(i => transform.InverseTransformPoint(item.transform.TransformPoint(i)));
-
-                foreach(var corner in corners)
-                {
-                    if(isFirst)
-                    {
-                        bounds.center = corner;
-                        bounds.size = Vector3.zero;
-                        isFirst = false;
-                    }
-                    else
-                    {
-                        bounds.Encapsulate(corner);
-                    }
-                }
-            }
-        }
+        var childObjects = gameObject.Descendants().Where(i => i != background);
+        var childCorners = childObjects.SelectMany(i => getGameObjectCorners(i)).ToArray();
+        var bounds = HelperMethods.BoundsFromPoints(childCorners);
 
         //bounds coordinates are relative to this.transform
 
@@ -67,5 +44,14 @@ public class PanelContainer : MonoBehaviour
         background.transform.localPosition = bounds.center + new Vector3(0, 0, bounds.extents.z + Thickness/2 + StandOff);
         background.transform.localScale = new Vector3(bounds.size.x + Padding * 2, bounds.size.y + Padding * 2, Thickness);
         
+    }
+
+    IEnumerable<Vector3> getGameObjectCorners(GameObject item)
+    {
+        var meshFilter = item.GetComponent<MeshFilter>();
+        if (meshFilter != null && meshFilter.sharedMesh != null)
+            return meshFilter.sharedMesh.bounds.Corners().Select(i => transform.InverseTransformPoint(item.transform.TransformPoint(i)));
+        else
+            return new Vector3[0];
     }
 }
