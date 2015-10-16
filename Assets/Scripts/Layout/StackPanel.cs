@@ -28,7 +28,7 @@ public class StackPanel : MonoBehaviour
             var meshToOriginOffset = childBounds.center - childBounds.extents;
 
             meshToOriginOffset.y *= -1;
-            child.transform.localPosition = position; // -meshToOriginOffset;
+            child.transform.localPosition = position;// -meshToOriginOffset;
 
             position -= Vector3.up * childBounds.size.y;
         }

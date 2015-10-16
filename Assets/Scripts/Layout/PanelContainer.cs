@@ -20,7 +20,7 @@ public class PanelContainer : MonoBehaviour
 	void Update () 
     {
         //TODO: Need to figure out a way to decide when to update. Updating every frame even if nothing has changed is stupid
-        //UpdateLayout();
+        UpdateLayout();
 	}
 
     void UpdateLayout()
