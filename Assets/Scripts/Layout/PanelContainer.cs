@@ -3,13 +3,13 @@ using System.Collections;
 using System.Linq;
 
 [ExecuteInEditMode]
-public class BoxContainer : MonoBehaviour 
+public class PanelContainer : MonoBehaviour 
 {
     public float Thickness = 0.01f;
     public float StandOff = 0.01f;
     public float Padding = 0.04f;
 
-    GameObject background;
+    GameObject background; 
 
 	void Start () 
     {
